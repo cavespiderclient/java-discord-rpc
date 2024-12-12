@@ -1,6 +1,8 @@
 /*
  * Copyright 2016 - 2019 Florian Spieß and the java-discord-rpc contributors
- *
+ * Copyright 2024 - present Jonas F. Franke <@binary-blazer> and the cavespider/java-discord-rpc contributors
+ * 
+ * THIS PROJECT IS A FORK OF THE ORIGINAL PROJECT BY FLORIAN SPIESS
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +16,7 @@
  * limitations under the License.
  */
 
-package club.minnced.discord.rpc;
+package cavespider.discord.rpc;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
