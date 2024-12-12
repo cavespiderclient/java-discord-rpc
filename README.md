@@ -46,7 +46,7 @@ dependencies {
 The library can be used just like the SDK. This means you can almost copy the exact code used in the official documentation.
 
 ```java
-import com.discord.GameSDK.*;
+import cavespider.discord.rpc.DiscordGameSDK.*;
 
 public class Main {
     public static void main(String[] args) {
