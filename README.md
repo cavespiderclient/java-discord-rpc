@@ -1,14 +1,14 @@
 # java-discord-rpc
 
-This library contains Java bindings for [Discord's official RPC SDK](https://github.com/discord/discord-rpc) using JNA.
+This library contains Java bindings for [Discord's official Game SDK](https://discord.com/developers/docs/developer-tools/game-sdk) using JNA.
 
 ## Documentation
 
-You can see the official discord documentation in the [API Documentation](https://discordapp.com/developers/docs/rich-presence/how-to).
+You can see the official discord documentation in the [API Documentation](https://discord.com/developers/docs/developer-tools/game-sdk).
 
 ## Setup
 
-In the follwing please replace `%VERSION%` with the version listed above.
+In the following please replace `%VERSION%` with the version listed above.
 Latest version: ``2024-3.1``
 
 ### Gradle
@@ -46,29 +46,41 @@ dependencies {
 The library can be used just like the SDK. This means you can almost copy the exact code used in the official documentation.
 
 ```java
-import club.minnced.discord.rpc.*;
+import com.discord.GameSDK.*;
 
 public class Main {
     public static void main(String[] args) {
-        DiscordRPC lib = DiscordRPC.INSTANCE;
-        String applicationId = "";
-        String steamId = "";
-        DiscordEventHandlers handlers = new DiscordEventHandlers();
-        handlers.ready = (user) -> System.out.println("Ready!");
-        lib.Discord_Initialize(applicationId, handlers, true, steamId);
-        DiscordRichPresence presence = new DiscordRichPresence();
-        presence.startTimestamp = System.currentTimeMillis() / 1000; // epoch second
-        presence.details = "Testing RPC";
-        lib.Discord_UpdatePresence(presence);
-        // in a worker thread
-        new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                lib.Discord_RunCallbacks();
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException ignored) {}
+        if (args.length == 0) {
+            System.err.println("You must specify an application ID in the arguments!");
+            System.exit(-1);
+        }
+        DiscordCore core = new DiscordCore(args[0], DiscordCreateFlags.Default);
+        DiscordActivityManager activityManager = core.getActivityManager();
+        DiscordActivity activity = new DiscordActivity();
+        activity.setDetails("Details here");
+        activity.setState("State here");
+        activity.timestamps().setStart(System.currentTimeMillis() / 1000);
+        activity.timestamps().setEnd(activity.timestamps().getStart() + 20);
+        activity.party().size().setCurrentSize(1);
+        activity.party().size().setMaxSize(4);
+        activityManager.updateActivity(activity, (result) -> {
+            if (result != DiscordResult.Ok) {
+                System.err.println("Failed to update activity: " + result);
             }
-        }, "RPC-Callback-Handler").start();
+        });
+
+        Thread t = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                core.runCallbacks();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    core.close();
+                    break;
+                }
+            }
+        }, "RPC-Callback-Handler");
+        t.start();
     }
 }
 ```
