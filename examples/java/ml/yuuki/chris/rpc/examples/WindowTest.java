@@ -16,9 +16,11 @@
 
 package ml.yuuki.chris.rpc.examples;
 
-import com.discord.GameSDK.*;
-import com.discord.GameSDK.DiscordActivityManager.*;
-import com.discord.GameSDK.DiscordUserManager.*;
+import com.discord.GameSDK.DiscordActivity;
+import com.discord.GameSDK.DiscordActivityManager;
+import com.discord.GameSDK.DiscordCore;
+import com.discord.GameSDK.DiscordCreateFlags;
+import com.discord.GameSDK.DiscordResult;
 
 import javax.swing.*;
 import java.awt.*;
