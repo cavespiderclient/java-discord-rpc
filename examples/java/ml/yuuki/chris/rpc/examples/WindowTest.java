@@ -16,7 +16,9 @@
 
 package ml.yuuki.chris.rpc.examples;
 
-import club.minnced.discord.rpc.*;
+import com.discord.GameSDK.*;
+import com.discord.GameSDK.DiscordActivityManager.*;
+import com.discord.GameSDK.DiscordUserManager.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,31 +31,28 @@ public class WindowTest {
 			System.err.println("You must specify an application ID in the arguments!");
 			System.exit(-1);
 		}
-		DiscordRPC lib = DiscordRPC.INSTANCE;
-		DiscordRichPresence presence = new DiscordRichPresence();
-		String applicationId = args.length < 1 ? "" : args[0];
-		String steamId       = args.length < 2 ? "" : args[1];
-		
-		DiscordEventHandlers handlers = new DiscordEventHandlers();
-		handlers.ready = (user) -> System.out.println("Ready!");
-		
-		lib.Discord_Initialize(applicationId, handlers, true, steamId);
-		
-		presence.startTimestamp = System.currentTimeMillis() / 1000; // epoch second
-		presence.endTimestamp   = presence.startTimestamp + 20;
-		presence.details   = "Details here";
-		presence.state     = "State here";
-		presence.partySize = 1;
-		presence.partyMax  = 4;
-		lib.Discord_UpdatePresence(presence);
+		DiscordCore core = new DiscordCore(args[0], DiscordCreateFlags.Default);
+		DiscordActivityManager activityManager = core.getActivityManager();
+		DiscordActivity activity = new DiscordActivity();
+		activity.setDetails("Details here");
+		activity.setState("State here");
+		activity.timestamps().setStart(System.currentTimeMillis() / 1000);
+		activity.timestamps().setEnd(activity.timestamps().getStart() + 20);
+		activity.party().size().setCurrentSize(1);
+		activity.party().size().setMaxSize(4);
+		activityManager.updateActivity(activity, (result) -> {
+			if (result != DiscordResult.Ok) {
+				System.err.println("Failed to update activity: " + result);
+			}
+		});
 		
 		Thread t = new Thread(() -> {
 			while (!Thread.currentThread().isInterrupted()) {
-				lib.Discord_RunCallbacks();
+				core.runCallbacks();
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {
-					lib.Discord_Shutdown();
+					core.close();
 					break;
 				}
 			}
@@ -76,28 +75,32 @@ public class WindowTest {
 		// Details
 		JLabel detailsLabel = new JLabel("Details");
 		detailsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		JTextField detailsText = new JTextField(presence.details);
+		JTextField detailsText = new JTextField(activity.getDetails());
 		
 		JLabel stateLabel = new JLabel("State");
 		stateLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		JTextField stateText = new JTextField(presence.state);
+		JTextField stateText = new JTextField(activity.getState());
 		
-		JTextField partySizeText = new JTextField(String.valueOf(presence.partySize));
+		JTextField partySizeText = new JTextField(String.valueOf(activity.party().size().getCurrentSize()));
 		JLabel partyLabel = new JLabel("of"); partyLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		JTextField partyMaxText = new JTextField(String.valueOf(presence.partyMax));
+		JTextField partyMaxText = new JTextField(String.valueOf(activity.party().size().getMaxSize()));
 		
 		JButton submit = new JButton("Update Presence");
 		submit.addActionListener(e -> {
-			presence.details = detailsText.getText();
-			presence.state   = stateText.getText();
+			activity.setDetails(detailsText.getText());
+			activity.setState(stateText.getText());
 			try {
-				presence.partySize = Integer.parseInt(partySizeText.getText());
+				activity.party().size().setCurrentSize(Integer.parseInt(partySizeText.getText()));
 			} catch (Exception ignored) {}
 			try {
-				presence.partyMax  = Integer.parseInt(partyMaxText.getText());
+				activity.party().size().setMaxSize(Integer.parseInt(partyMaxText.getText()));
 			} catch (Exception ignored) {} // if text isn't a number, ignore it
 			
-			lib.Discord_UpdatePresence(presence);
+			activityManager.updateActivity(activity, (result) -> {
+				if (result != DiscordResult.Ok) {
+					System.err.println("Failed to update activity: " + result);
+				}
+			});
 		});
 		
 		top.add(detailsLabel);
