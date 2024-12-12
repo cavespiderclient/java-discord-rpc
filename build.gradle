@@ -4,6 +4,7 @@ buildscript {
         mavenCentral()
         maven { url 'https://repo.maven.apache.org/maven2' }
         maven { url 'https://repo.grails.org/grails/core' }
+        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
@@ -17,7 +18,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
-group 'cavespider'
+group 'com.cavespider'
 version '2024-3.1'
 
 sourceSets {

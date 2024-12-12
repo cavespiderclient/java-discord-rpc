@@ -20,4 +20,4 @@
 /**
  * Java bindings for the official Discord RPC SDK.
  */
-package cavespider.discord.rpc;
+package com.cavespider.discord.rpc;
