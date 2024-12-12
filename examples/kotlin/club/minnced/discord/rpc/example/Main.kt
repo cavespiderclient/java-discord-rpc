@@ -17,8 +17,9 @@
 @file:JvmName("Main")
 package club.minnced.discord.rpc.example
 
-import club.minnced.discord.rpc.*
-import club.minnced.discord.rpc.DiscordEventHandlers.*
+import com.discord.GameSDK.*
+import com.discord.GameSDK.DiscordActivityManager.*
+import com.discord.GameSDK.DiscordUserManager.*
 import java.io.File
 import kotlin.concurrent.thread
 
@@ -34,37 +35,28 @@ fun main(args: Array<String>) {
     }
 
     println("Starting RPC...")
-    discord {
-        val handlers = handlers {
-            ready = OnReady { println("Ready!") }
-            errored = OnStatus { code, message -> println("$code: $message") }
-        }
+    val core = DiscordCore(applicationId, DiscordCreateFlags.Default)
+    val activityManager = core.getActivityManager()
+    val activity = DiscordActivity().apply {
+        details = "Undisclosed"
+        state = "Free 4 All"
+        timestamps().start = System.currentTimeMillis() / 1000
+        largeImageKey = "map-desert"
+        largeImageText = "Desert"
+        smallImageKey = "char-robert"
+        smallImageText = "Robert"
+    }
 
-        Discord_Initialize(applicationId, handlers, true, steamId)
-
-        presence {
-            details = "Undisclosed"
-            state = "Free 4 All"
-            startTimestamp = System.currentTimeMillis() / 1000
-
-            largeImageKey = "map-desert"
-            largeImageText = "Desert"
-            smallImageKey = "char-robert"
-            smallImageText = "Robert"
-        }
-
-        thread(name="RPC-Callback-Handler") {
-            while (!Thread.currentThread().isInterrupted) {
-                Discord_RunCallbacks()
-                Thread.sleep(2000)
-            }
+    activityManager.updateActivity(activity) { result ->
+        if (result != DiscordResult.Ok) {
+            println("Failed to update activity: $result")
         }
     }
 
-}
-
-fun discord(block: DiscordRPC.() -> Unit) = DiscordRPC.INSTANCE.apply(block)
-fun handlers(block: DiscordEventHandlers.() -> Unit) = DiscordEventHandlers().apply(block)
-fun DiscordRPC.presence(block: DiscordRichPresence.() -> Unit) {
-    Discord_UpdatePresence(DiscordRichPresence().apply(block))
+    thread(name="RPC-Callback-Handler") {
+        while (!Thread.currentThread().isInterrupted) {
+            core.runCallbacks()
+            Thread.sleep(2000)
+        }
+    }
 }
