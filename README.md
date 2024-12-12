@@ -85,18 +85,9 @@ public class Main {
 }
 ```
 
-### Community Examples
-
-If you want to add an example to the [example directory](https://github.com/MinnDevelopment/java-discord-rpc/tree/master/examples)
-you can do so by making a PR with your package and source.
-All I ask from you is that the example does not abuse the API in any way and that your example can compile.
-If you would like to add examples in other JVM languages you must first add support via the `build.gradle` file.
-
-For example, `examples/java/club/minnced/rpc/examples/MyGame.java` would be your example file relative to the project root directory.
-
 ## License
 
-java-discord-rpc is licensed under the Apache 2.0 License. The base DiscordRPC is licensed under the MIT license.
+java-discord-rpc is licensed under the Apache 2.0 License.
 
 ## Contributing
 

@@ -7,14 +7,12 @@ plugins {
 }
 
 group 'cavespider'
-version '2.0.2'
+version '2024-3.1'
 
 sourceSets {
     examples {
         compileClasspath = main.output
         runtimeClasspath = main.output
-        java.srcDirs = ['examples/java']
-        kotlin.srcDirs = ['examples/kotlin']
     }
 }
 
@@ -76,51 +74,6 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
     from javadoc.destinationDir
-}
-
-publishing {
-    publications {
-        BintrayRelease(MavenPublication) {
-            from components.java
-            groupId group
-            artifactId archivesBaseName
-            version version
-
-            artifact javadocJar
-            artifact sourcesJar
-        }
-    }
-}
-
-bintray {
-    user = getProjectProperty('bintrayUsername')
-    key = getProjectProperty('bintrayApiKey')
-    publications = ["BintrayRelease"]
-    pkg {
-        repo = 'maven'
-        name = project.name
-        licenses = ['Apache-2.0']
-        vcsUrl = 'https://github.com/MinnDevelopment/java-discord-rpc.git'
-        githubRepo = 'MinnDevelopment/java-discord-rpc'
-        publish = true
-        version {
-            name = project.version
-            vcsTag = project.version
-            released = new Date()
-            gpg {
-                sign = true
-            }
-        }
-    }
-}
-
-bintrayUpload {
-    dependsOn clean
-    dependsOn build
-    build.mustRunAfter clean
-
-    onlyIf { !getProjectProperty('bintrayUsername').empty }
-    onlyIf { !getProjectProperty('bintrayApiKey').empty }
 }
 
 def getProjectProperty(String key) {
